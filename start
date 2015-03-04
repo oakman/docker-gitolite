@@ -1,0 +1,10 @@
+#!/bin/bash
+# Start script for gitolite ssh server
+
+# I assume that everything is set up under /home/git
+
+# Run gitolite setup to make sure everything is good
+su git -c "gitolite setup"
+
+# Start the ssh server in the foreground
+exec /usr/sbin/sshd -D
