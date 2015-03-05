@@ -1,10 +1,24 @@
 #!/bin/bash
 # Start script for gitolite ssh server
 
-# I assume that everything is set up under /home/git
+# At run you can use the environment to specify the name of the gitolite
+# user, defaulting to "git", the uid defaults to 1000. It only matters
+# if I am creating the user.
+ACTUAL_USER=${GITOLITE_USER:-git}
+ACTUAL_UID=${GITOLITE_UID:-1000}
+
+# See if I need to create the user
+if ! cut -d: -f 1 /etc/passwd | grep "${ACTUAL_USER}" ; then
+    # If I create the user I use uid 1000
+    echo "Creating user ${ACTUAL_USER} with uid ${ACTUAL_UID} and home directory /home/${ACTUAL_USER}"
+    adduser --home "/home/${ACTUAL_USER}" --no-create-home \
+        --uid "${ACTUAL_UID}" --gecos "Gitolite" --disabled-password "${ACTUAL_USER}"
+fi
+
+# I assume that everything is set up under the user home directory
 
 # Run gitolite setup to make sure everything is good
-su git -c "gitolite setup"
+su "${ACTUAL_USER}" -c "gitolite setup"
 
 # Start the ssh server in the foreground
 exec /usr/sbin/sshd -D
