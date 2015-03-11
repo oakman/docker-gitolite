@@ -16,6 +16,7 @@ if ! cut -d: -f 1 /etc/passwd | grep "${ACTUAL_USER}" ; then
 fi
 
 # I assume that everything is set up under the user home directory
+chown -R "${ACTUAL_UID}" /home/${ACTUAL_USER}
 
 # Run gitolite setup to make sure everything is good
 su "${ACTUAL_USER}" -c "gitolite setup"
