@@ -10,7 +10,13 @@ ACTUAL_GID=${GITOLITE_GID:-1000}
 
 # See if I need to create the user
 if ! cut -d: -f 1 /etc/passwd | grep "${ACTUAL_USER}" ; then
-    # If I create the user I use uid 1000
+    group=$(egrep "^[^:]+:[^:]+:${ACTUAL_GID}:" /etc/group | cut -d: -f 1)
+    if [ -z "$group" ] ; then
+        # Group with gid does not exist
+        group="$ACTUAL_USER"
+        addgroup --gid "$ACTUAL_GID" "$group"
+    fi
+
     echo "Creating user ${ACTUAL_USER} with uid ${ACTUAL_UID} and home directory /home/${ACTUAL_USER}"
     adduser --home "/home/${ACTUAL_USER}" --no-create-home \
         --uid "${ACTUAL_UID}" --gid "${ACTUAL_GID}" --gecos "Gitolite" --disabled-password "${ACTUAL_USER}"
