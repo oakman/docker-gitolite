@@ -1,9 +1,9 @@
-FROM ubuntu:trusty
-MAINTAINER Chris Hardekopf <chrish@basis.com>
+FROM ubuntu:zesty
+MAINTAINER Niklas Ekman <niklas.ekman@gmail.com>
 
 # Install gitolite
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y gitolite3 && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y gitolite3 locales && \
     rm -rf /var/lib/apt/lists/*
 
 # Get the locale set up for perl and make sure sshd can run

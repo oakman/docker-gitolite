@@ -8,25 +8,29 @@ ACTUAL_USER=${GITOLITE_USER:-git}
 ACTUAL_UID=${GITOLITE_UID:-1000}
 ACTUAL_GID=${GITOLITE_GID:-1000}
 
+echo "User: $ACTUAL_USER"
+echo "UID: $ACTUAL_UID"
+echo "GID: $ACTUAL_GID"
+
 # See if I need to create the user
-if ! cut -d: -f 1 /etc/passwd | grep "${ACTUAL_USER}" ; then
-    group=$(egrep "^[^:]+:[^:]+:${ACTUAL_GID}:" /etc/group | cut -d: -f 1)
+if ! cut -d: -f 1 /etc/passwd | grep "$ACTUAL_USER" ; then
+    group=$(egrep "^[^:]+:[^:]+:$ACTUAL_GID:" /etc/group | cut -d: -f 1)
     if [ -z "$group" ] ; then
         # Group with gid does not exist
         group="$ACTUAL_USER"
         addgroup --gid "$ACTUAL_GID" "$group"
     fi
 
-    echo "Creating user ${ACTUAL_USER} with uid ${ACTUAL_UID} and home directory /home/${ACTUAL_USER}"
-    adduser --home "/home/${ACTUAL_USER}" --no-create-home \
-        --uid "${ACTUAL_UID}" --gid "${ACTUAL_GID}" --gecos "Gitolite" --disabled-password "${ACTUAL_USER}"
+    echo "Creating user $ACTUAL_USER with uid $ACTUAL_UID and home directory /home/$ACTUAL_USER"
+    adduser --home "/home/$ACTUAL_USER" --no-create-home \
+        --uid "$ACTUAL_UID" --gid "$ACTUAL_GID" --gecos "Gitolite" --disabled-password "$ACTUAL_USER"
 
     # I assume that everything is set up under the user home directory
-    chown -R "${ACTUAL_UID}:${ACTUAL_GID}" "/home/${ACTUAL_USER}"
+    chown -R "$ACTUAL_UID:$ACTUAL_GID" "/home/$ACTUAL_USER"
 fi
 
 # Run gitolite setup to make sure everything is good
-su "${ACTUAL_USER}" -c "gitolite setup"
+su "$ACTUAL_USER" -c "gitolite setup"
 
 # Start the ssh server in the foreground
 exec /usr/sbin/sshd -D
